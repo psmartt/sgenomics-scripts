@@ -1,0 +1,20 @@
+cd /mysql_setup/scripts/ucsc_output
+mysql --user=genome --host=genome-mysql.cse.ucsc.edu --database=hg18 -A --execute="SELECT name, chrom, chromStart, chromEnd FROM snp130" > /mysql_setup/scripts/ucsc_output/hg18SNPs
+mysql --user=genome --host=genome-mysql.cse.ucsc.edu --database=hg19 -A --execute="SELECT name, chrom, chromStart, chromEnd FROM snp142Common" > /mysql_setup/scripts/ucsc_output/hg19SNPs
+mysql --user=genome --host=genome-mysql.cse.ucsc.edu --database=hg38 -A --execute="SELECT name, chrom, chromStart, chromEnd FROM snp142Common" > /mysql_setup/scripts/ucsc_output/hg38SNPs
+
+mysql --user=genome --host=genome-mysql.cse.ucsc.edu --database=hg18 -A --execute="SELECT name, chrom, chromStart, chromEnd FROM illuminaProbes" > /mysql_setup/scripts/ucsc_output/hg18Probes
+mysql --user=genome --host=genome-mysql.cse.ucsc.edu --database=hg19 -A --execute="SELECT name, chrom, chromStart, chromEnd FROM illuminaProbes" > /mysql_setup/scripts/ucsc_output/hg19Probes
+#used liftover process at http://genome.ucsc.edu/cgi-bin/hgLiftOver to generate hg38 probes because UCSC does not have hg38 probes
+
+mysql --user=genome --host=genome-mysql.cse.ucsc.edu --database=hg18 -A --execute="SELECT x.geneSymbol, g.chrom, g.txStart, g.txEnd, g.exonStarts, g.exonEnds FROM knownGene g INNER JOIN kgXref x ON x.kgID = g.name" > /mysql_setup/scripts/ucsc_output/hg18Genes
+mysql --user=genome --host=genome-mysql.cse.ucsc.edu --database=hg19 -A --execute="SELECT x.geneSymbol, g.chrom, g.txStart, g.txEnd, g.exonStarts, g.exonEnds FROM knownGene g INNER JOIN kgXref x ON x.kgID = g.name" > /mysql_setup/scripts/ucsc_output/hg19Genes
+mysql --user=genome --host=genome-mysql.cse.ucsc.edu --database=hg38 -A --execute="SELECT x.geneSymbol, g.chrom, g.txStart, g.txEnd, g.exonStarts, g.exonEnds FROM knownGene g INNER JOIN kgXref x ON x.kgID = g.name" > /mysql_setup/scripts/ucsc_output/hg38Genes
+
+sed -i -r 's/\t(chr[^_]+)_[^\t]*\t/\t\1\t/g' /mysql_setup/scripts/ucsc_output/*
+sed -i 's/\tchrX\t/\tchr23\t/g' /mysql_setup/scripts/ucsc_output/*
+sed -i 's/\tchrY\t/\tchr24\t/g' /mysql_setup/scripts/ucsc_output/*
+sed -i 's/\tchrUn\t/\tchr25\t/g' /mysql_setup/scripts/ucsc_output/*
+sed -i 's/\tchr[0M]\t/\tchr25\t/g' /mysql_setup/scripts/ucsc_output/*
+sed -i 's/\tchr/\t/g' /mysql_setup/scripts/ucsc_output/*
+
